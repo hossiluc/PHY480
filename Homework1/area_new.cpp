@@ -13,10 +13,10 @@
 //   * compile with:  "g++ -o area.x area.cpp"
 //
 //  To do:
-//   1.  D- output the answer with higher precision (more digits) 
-//   2.  D- use a "predefined" value of pi or generate it with atan
-//   3.  D- define an inline square function
-//   4.  D- split the calculation off into a function (subroutine)
+//   1. output the answer with higher precision (more digits)
+//   2. use a "predefined" value of pi or generate it with atan
+//   3. define an inline square function
+//   4. split the calculation off into a function (subroutine)
 //   5. output to a file (and/or input from a file)
 //   6. add checks of the input (e.g., for non-positive radii)
 //   7. rewrite using a Circle class
@@ -24,31 +24,58 @@
 //*********************************************************************// 
 
 // include files
-#include <iostream>	     // this has the cout, cin definitions
-#include <iomanip>       
-#include <cmath>
-using namespace std;     // if omitted, then need std::cout, std::cin 
+#include <iostream>
+#include <math.h>
+#include <fstream>
+#include <iomanip>
+using namespace std;
+	      
 
 //*********************************************************************//
 
-//const double pi = 3.1415926535897932385;   // define pi as a constant 
-inline int square_function(double r){
-	return pow(r,2);}
+// Lucas Jose Chaves Hossi
+// hossiluc@msu.edu
+// 5-Feb-2019 attempeted completion of 1-6 
 
-int
-main ()
-{	int order=1;
-	ofstream data_out("Area_new.dat", ios::out);
-  	data_out << "# Area of circle,"  << endl;
+// inline square function
+inline double sqr(double x)
+{
+
+return x*x;
+
+}
+
+int main ()
+{
+
+// creating file to output to
+  ofstream output;
+  output.open("area_new.dat");
 
   double radius;    // every variable is declared as int or double or ...
 
   cout << "Enter the radius of a circle: ";	// ask for radius
   cin >> radius;
 
-  double area = M_PI * square_function(radius);	// standard area formula
+// checking to make sure the radius is positive  
+  if(radius < 0)
+  {
+  output << "Radius must be positive";
+  }
 
-  data_out << "radius = " << radius << setprecision (8)  << ",  area = " << area <<endl;
+// if it is positive, the calculation goes through
+  else
+  {
+
+// using math.h defined pi value and  sqaure function to calculate area
+  double area = M_PI * sqr(radius);	// standard area formula
+
+// output to file with 16 digits
+  output << "radius = " << setprecision(16) << radius << ",  area = "<< setprecision(16) << area << endl;
+
+// close file
+  output.close();
+  }
 
   return 0;			// "0" for successful completion
 }
