@@ -1,0 +1,23 @@
+
+# Grading Scale: check(+) --> excellent codes and analysis
+                 check    --> satisfactory (missing small gaps in analysis or codes)
+                 check(-) --> unsatisfactory (significant problems with codes/analysis or incomplete)  
+
+The results look like something is wrong. The slope for the Milne integration should be steeper than Simpson's, since
+it's a higher order method than Simpson's rule. (Also, the slope of the Simpson's rule *should* be 
+closer to -4, I would think.) There are 2 possibilities that you should investigate 
+
+1) The Milne algorithm might simply be coded incorrectly
+2) I noticed your code is mixing floats and doubles all over the place, which is dangerous since you're 
+mixing different precisions. Make sure you're using all doubles.
+3) Your test function sqrt(x)*Sin(x) has a branch cut singularity at 0 (see the notes and supplementary 
+handout where the integration of singular functions is discussed). This is a rather weak singularity, 
+since nothing is "blowing up". But still, you might try a singularity-free integrand
+like x*sin(x) or something. 
+
+Suggestion 1) might take the longest, so I'd try 2) and 3) first. If you at least try 2) and 3)(even if it doesn't fix
+your Milne results), i'll bump you up to a check.  
+  
+Grade: check(-)
+
+
