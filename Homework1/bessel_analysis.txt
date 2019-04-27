@@ -1,0 +1,13 @@
+
+Analysis:
+
+Under the assumption that `gsl_sf_bessel_jl()` is more accurate than either the
+downward or the upward recursion.
+
+From the plots we can see that for  0 < x < 10 the downward recursion is more
+accurate that the upward recursion up to about machine error precision epsilon (which is about 1e-16).
+
+For 0 < x < 1, upward recursion is very innaccurate, and for 1 < x < 10 it follows a power law with the
+relative error proportional to x^-17. For 10 < x < 30, both upward and downward recursion are
+equally accurate up to machine epsilon. Only after x>30 (For 30 < x < 100), the upward recursion is more accurate the
+downward recursion, and for 30 < x < 40 the relative error of downward recursion is proportional to x^75.

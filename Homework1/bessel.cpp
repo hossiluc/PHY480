@@ -1,12 +1,21 @@
-/*
-The logscale graph of the bessel function error takes a large dip down with increasing  x, levels out and then shoots back up.  
-Looks to me like at a certain range the result for x values is the same whether we sum up or sum down.  
-The first part of the graph is a downward slope representing it is approaching the  region stability,meaning that  a small x and large x the relative difference is of order 1
-*/
-
-//Lucas Jose Chaves Hossi
-//hossiluc@msu.edu
-//5-Feb-2019 last modified
+//  file: bessel.cpp 
+//
+//  Spherical Bessel functions via up and down recursion      
+//                                                                     
+//
+//  Programmer:  Dick Furnstahl     furnstahl.1@osu.edu
+//               
+//  Revision history:
+//      02-Jan-2011  new version, for 780.20 Computational Physics
+//      
+//  Notes:  
+//   * compile with:  "g++ -o bessel -lgsl bessel.cpp"
+//   * adapted from: "Projects in Computational Physics" by Landau and Paez  
+//             copyrighted by John Wiley and Sons, New York               
+//             code copyrighted by RH Landau  
+//   * data saved as: x y1 y2  --- should print column headings!!                        
+//  
+//************************************************************************
 
 
 // include files
@@ -18,8 +27,8 @@ The first part of the graph is a downward slope representing it is approaching t
 using namespace std;		// we need this when .h is omitted
 
 // function prototypes 
-double down_recursion (double x, int n, int m);	// downward algorithm 
-double up_recursion (double x, int n);	        // upward algorithm 
+double down_recursion(double x, int n, int m);	// downward algorithm 
+double up_recursion(double x, int n);	        // upward algorithm 
 
 // global constants  
 const double xmax = 100.0;	// max of x  
@@ -29,57 +38,54 @@ const int order = 10;		// order of Bessel function
 const int start = 50;		// used for downward algorithm 
 
 //********************************************************************
-int
-main ()
-{
-  double ans_down, ans_up, ans_gsl;
-
+int main () {
   // open an output file stream
   ofstream my_out ("bessel.dat");
 
-  my_out << "# Spherical Bessel functions via up and down recursion" 
-         << endl;
-  my_out <<"x"<< setw (18) << "ans_down"
-      << setw (18) << "ans_up"
-      << setw (18) << "error"
-      << setw (18) << "ans_gsl"
-      << endl;
+  char const *const space = " ";
+  my_out << "# Spherical Bessel functions via up and down recursion" << endl
+  // 6+7 -- 6 decimal places plus 7 other characters i.e. "+1.e+00"
+         << left << setw(8) << "x" << space << setw(6+7) << "down" << space
+            << setw(6+7) << "up" << space << setw(6+7) << "gsl" << space
+            << setw(6+7) << "rel_up_down" << space << setw(6+7) << "rel_down_gsl" << space
+            << setw(6+7) << "rel_up_gsl" << endl
+         << right;
 
   // step through different x values
-  for (double x = xmin; x <= xmax; x += step)
-    {
-      ans_down = down_recursion (x, order, start);
-      ans_up = up_recursion (x, order);
-      ans_gsl = gsl_sf_bessel_j1(x);
+  for (double x = xmin; x <= xmax; x += step) {
+    double ans_down = down_recursion(x, order, start);
+    double ans_up = up_recursion(x, order);
+    double ans_gsl = gsl_sf_bessel_jl(order, x);
+    double rel_diff_down_up = fabs(ans_down-ans_up)/(fabs(ans_down)+fabs(ans_up));
+    double rel_diff_up_gsl = fabs(ans_up-ans_gsl)/(fabs(ans_up)+fabs(ans_gsl));
+    double rel_diff_down_gsl = fabs(ans_down-ans_gsl)/(fabs(ans_down)+fabs(ans_gsl));
 
-      my_out << fixed << setprecision (8) << setw (10) << x << " "
-	<< scientific << setprecision (8)
-	<< setw (15) << ans_down << " "
-	<< setw (15) << ans_up 
-	<< setw (15) << abs(ans_down-ans_up)/(abs(ans_down)+abs(ans_up))
-        << setw (15) << ans_gsl
-	<< endl;
-    }
+    my_out << fixed << setprecision(6)
+              << setw(8) << x << space
+              << scientific << setprecision(6)
+    // 6+7 -- 6 decimal places plus 7 other characters i.e. "+1.e+00"
+              << setw(6+7) << ans_down << space << setw(6+7) << ans_up << space
+              << setw(6+7) << ans_gsl << space << setw(6+7) << rel_diff_down_up << space
+              << setw(6+7) << rel_diff_down_gsl << space << setw(6+7) << rel_diff_up_gsl
+              << endl;
+  }
   cout << "data stored in bessel.dat." << endl;
 
   // close the output file
-  my_out.close ();
-  return (0);
+  my_out.close();
+  return 0;
 }
 
 
 //------------------------end of main program----------------------- 
 
 // function using downward recursion  
-double
-down_recursion (double x, int n, int m)
-{
+double down_recursion(double x, int n, int m) {
   double j[start + 2];		// array to store Bessel functions 
   j[m + 1] = j[m] = 1.;		// start with "something" (choose 1 here) 
-  for (int k = m; k > 0; k--)
-    {
-      j[k - 1] = ((2.* double(k) + 1.) / x) * j[k] - j[k + 1];  // recur. rel.
-    }
+  for (int k = m; k > 0; k--) {
+    j[k - 1] = ((2.* double(k) + 1.) / x) * j[k] - j[k + 1];  // recur. rel.
+  }
   double scale = (sin (x) / x) / j[0];	// scale the result 
   return (j[n] * scale);
 }
@@ -88,17 +94,16 @@ down_recursion (double x, int n, int m)
 //------------------------------------------------------------------ 
 
 // function using upward recursion  
-double
-up_recursion (double x, int n)
-{
+double up_recursion(double x, int n) {
   double term_three = 0.;
   double term_one = (sin (x)) / x;	// start with lowest order 
   double term_two = (sin (x) - x * cos (x)) / (x * x);	// next order
-  for (int k = 1; k < n; k += 1)	// loop for order of function     
-    { // recurrence relation
+  // loop for order of function     
+  for (int k = 1; k < n; k += 1) {
+      // recurrence relation
       term_three = ((2.*double(k) + 1.) / x) * term_two - term_one;	       
       term_one = term_two;
       term_two = term_three;
-    }
+  }
   return (term_three);
 }
