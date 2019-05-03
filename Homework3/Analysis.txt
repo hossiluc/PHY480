@@ -1,0 +1,4 @@
+By looking at the output graphs we can thedetrmine the following:
+
+-  b is approximately 1.85, the value of b minimizes the error when plotted with the actual ground state function.
+- As the dimension got larger, the function converged to the actual ground state wavefunction.
