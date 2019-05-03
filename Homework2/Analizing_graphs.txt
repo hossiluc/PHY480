@@ -1,8 +1,0 @@
-The slopes of the methods we used are as follow:  simpson's ~3, milne's ~2, and GSL = 0. 
-The reason why the GSL slope is zero is because it was a pre-defined function that doesnt make any iterations. 
-Simpon's rule error scales with N^-4, so we would expect it to go down until it hits computer precision errors. thus the slope we found of (-)3 in it's stable region from 0 to 10^2 makes sense.
-
-Similarly  to Simpson's rule, we get a slope of -2 for Milne's method. I'm not very familiar with these method as all i know is what i could google, it has a local truncation error of N^(-5), therefore it would make sense that we have it going downward untill it its machine precision error.
-
-Looking at the Graphs, the best number of points to use for milne's rule method is around 10^3, because that's where the analytical error and computer precision error is minimized. Meaning, the error scales with 1/N^5, and We want to keep increasing the step size  N, to get a even lower error, However at some point if the step is too small, even in double precision the processor won't be able to keep track the decimal places, thus round off error will increase. 
-In the notes, this is used to derive an approximation for N best, which is N=a/error^2/b. where b is the power the error is inversely proptional to, for Milnes rule N^5. 
