@@ -47,7 +47,8 @@ BASE=  integ_test
 # Put all C++ (or other) source files here.  NO SPACES after continuation \'s.
 SRCS= \
 integ_test.cpp \
-integ_routines.cpp 
+integ_routines.cpp \
+
 
 # Put all header files here.  NO SPACES after continuation \'s.
 HDRS= \

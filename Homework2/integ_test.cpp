@@ -1,68 +1,115 @@
-//Lucas Jose Chaves Hossi
-//hossiluc@msu.edu
-//24-Feb-2019 created program
+//  file: integ_test.cpp
+//
+//  This is a test program for basic integration methods.               
+//                                                                     
+//  Programmer:  Dick Furnstahl  furnstahl.1@osu.edu
+//
+//  Revision history:
+//      04-Jan-2004  original version, for 780.20 Computational Physics
+//      08-Jan-2005  changed functions to pass integrand
+//      09-Jan-2011  updated functions
+//
+//  Notes:
+//   * define with floats to emphasize round-off error  
+//   * compile with:  "g++ -Wall -c integ_test.cpp"
+//   * adapted from: "Projects in Computational Physics" by Landau and Paez  
+//             copyrighted by John Wiley and Sons, New York               
+//             code copyrighted by RH Landau                           
+//************************************************************************
 
-#include "integ_routines.h"	// including our integration routines header
+// include files
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cmath>
+using namespace std;
+
+#include "integ_routines.h"	// prototypes for integration routines
+#include <gsl/gsl_integration.h> // for gsl integration routine
+
+double my_integrand (double x);
+double my_gsl_integrand (double x, void *);
+
+
+//************************************************************************
 
 int
 main ()
 {
+	gsl_integration_workspace *work_ptr
+    = gsl_integration_workspace_alloc (1000); // set up the gsl integration routine.
   // set up the integration specifiction
-  const int max_intervals = 10001;	// maximum number of intervals
-  const float lower = 0.0;	// lower limit of integration
-  const float upper = M_PI;	// upper limit of integration
+  const int max_intervals = 100000;	// maximum number of intervals
+  const double lower = 0.0;	// lower limit of integration
+  const double upper = 1.0;	// upper limit of integration
 
-  const double answer = 2.43532;	// the "exact" answer for the test 
-  float result = 0.;  // approximate answer
+  const double answer = 0.74682413281242702539947;	// the "exact" answer for the test 
+  double result = 0.;  // approximate answer
+  double abs_error = 1.0e-8;	/* to avoid round-off problems */
+  double rel_error = 1.0e-8;	/* the result will usually be much better */
+  double gslresult;		/* the result from the integration */
+  double error;			/* the estimated error from the integration */
+  
+  gsl_function My_function;
+
+  My_function.function = &my_gsl_integrand;  // further setting up the gsl integration routine.
+  gsl_integration_qags (&My_function, lower, upper,
+			abs_error, rel_error, 1000, work_ptr, &gslresult,
+			&error);
 
   // open the output file stream
-  ofstream integ_out1 ("integ1.dat");	// save data in integ1.dat
-  integ_out1 << "#  N     simpson        GSL  " << endl;
-  integ_out1 << "#-----------------------------------------" << endl;
+  ofstream Simpsons_out ("Simpsons_out.dat");	// save data in Simpsons.dat
+  Simpsons_out << "#N                        Simpsons                     GSL " << endl;
+  Simpsons_out << "#-----------------------------------------" << endl;
 
-  for (int i = 3; i <= max_intervals; i += 2) //loop to integrate
+  // Simpson's rule requires an odd number of intervals  
+  for (int i = 3; i <= max_intervals; i += 2)
   {
-    integ_out1 << setw(4) << log10(i); //output log(step)
+    Simpsons_out << setw(4) << log10(i);
 
-    result = simpsons_rule (i, lower, upper, &my_integrand); //simpson's rule
-    integ_out1 << "  " << scientific << log10(fabs (result - answer)/answer);
-    
-    result = GSL_integ (lower, upper, &my_gsl_integrand); //GSL function
-    integ_out1 << "  " << scientific << log10(fabs (result - answer)/answer);
+    result = simpsons_rule (i, lower, upper, &my_integrand);
+    Simpsons_out << setprecision(15) << "  " << scientific << log10(fabs ((result - answer)/(answer))) << "  " <<
+	log10(fabs ((gslresult - answer)/(answer)));
 
-    integ_out1 << endl;
+    Simpsons_out << endl;
   }
+  cout << "data stored in Simpsons_out.dat"<< endl;
+  Simpsons_out.close ();
+  // Milne's rule requires 4i + 1 intervals.
   
-  integ_out1.close (); // close file
-
-  ofstream integ_out2 ("integ2.dat");    // save data in integ2.dat
-  integ_out2 << "#  N     Milne    " << endl;
-  integ_out2 << "#-----------------------------------------" << endl;
-
-for (int i = 3; i <= max_intervals; i += 4) //milne's rule is in a seperate loop with a different step size
+  ofstream Milne_out ("Milne_out.dat");	// save data in integ.dat
+  Milne_out << "#N                        Milne                     GSL " << endl;
+  Milne_out << "#-----------------------------------------" << endl;
+  for (int i = 5; i <= max_intervals; i += 4)
   {
-    integ_out2 << setw(4) << log10(i);
+    Milne_out << setw(4) << log10(i);
 
-    result = milne_rule (i, lower, upper, &my_integrand);// milne's rule
-    integ_out2 << "  " << scientific << log10(fabs (result - answer)/answer);
-   
-    integ_out2 << endl;
+    result = Milne_rule (i, lower, upper, &my_integrand);
+    Milne_out << setprecision(15) << "  " << scientific << log10(fabs ((result - answer)/(answer))) << "  " <<
+	log10(fabs ((gslresult - answer)/(answer)));
+
+    Milne_out << endl;
   }
-
-  integ_out2.close (); // close file
+  cout << "data stored in Milne_out.dat"<< endl;
+  Milne_out.close ();
+  
+	   
+	  
+  
 
   return (0);
 }
+
+//************************************************************************
 
 // the function we want to integrate 
 double
 my_integrand (double x)
 {
-  return (sqrt(x)*sin(x));
+  return (exp (-x*x));
 }
-
-double my_gsl_integrand (double x, void *) //reworking in a way GSL will accept
+double 
+my_gsl_integrand (double x, void *)
 {
-  return (my_integrand(x));
+	return (exp (-x*x));
 }
-
