@@ -1,0 +1,7 @@
+For This Project my first idea was to model orbital dynamics in the end I didn't have much time as I wanted to create a model in which the masses
+are not too different from each other, my model works for smaller masses, considering the central plannet is more massive than the orbiting planet
+However it starts acting erratically as we scale. Thus i changed my project and modeled the brownian motion path of a stock with the intent of 
+creating a model that is able to make predictions of the future of the sctock then see how these algorithms perform compared to each other.
+
+That being said, I would like to be grade on the notebook tittled FinalProject_480, but i also provided the previous project files in case you wanted to look at it
+you could run either the "modeling_2d" or "modeling_3d" i've worked mostly on the 2D model they pull from a script file where i created the respective classes and routines.
